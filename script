@@ -1,0 +1,180 @@
+!/usr/bin/env bash
+
+# ================================================================
+# System Update
+# ================================================================
+# .................. Updating and Upgrading
+    sudo apt update && sudo apt upgrade -y
+    clear
+
+# ================================================================ 
+# DEB files                                                        
+# ================================================================ 
+
+#.................. Creating folder for installation files
+MY_DIR="$HOME/Downloads/Tempfiles"
+mkdir -p MY_DIR
+
+#.................. Downloading .deb files
+cd MY_DIR
+    wget https://zoom.us/client/latest/zoom_amd64.deb
+    wget https://download.virtualbox.org/virtualbox/6.1.16/virtualbox-6.1_6.1.16-140961~Ubuntu~eoan_amd64.deb
+    wget https://wdl1.pcfg.cache.wpscdn.com/wpsdl/wpsoffice/download/linux/9719/wps-office_11.1.0.9719.XA_amd64.deb
+
+#.................. Installing .deb files
+    sudo dpkg -i *.deb
+    sudo apt --fix-broken install -y # Fix broken packages
+cd
+
+#.................. Get the latest package lists
+    sudo apt update update -y
+
+# ================================================================
+# Install from Repo 
+# ================================================================
+
+INSTALL_FROM_REPO=(
+    
+# --------------
+    build-essential 
+ 	git  # Git - Perl interface to the Git version control system
+ 	curl  # Transfer a URL
+    python-pip	# python 2
+    python3-pip # python 2
+ 	openjdk-11-jdk  # Install JAVA 
+ 	nodejs  # server-side JavaScript runtime
+
+#.................. Apps
+ 	gedit  # text editor for the GNOME Desktop
+ 	gnome-system-monitor  # view and control processes
+ 	laptop-mode-tools  # Install Laptop Tool
+ 	synaptic  # Install Synaptic Package Manager
+  	syncthing
+    okular
+    openshot-qt
+    unity-tweak-tool
+ 	ghostwriter 
+    hunspell-en-gb  # Adds spellcheck to Ghostwriter
+    handbrake-gtk # Video converter 
+    stacer # Linux System Optimizer and Monitoring 
+    zsh # Zsh is an extended Bourne shell with many improvements
+#.................. Command Line Tools
+    translate-shell  # Command-line translator using Google Translate, etc.
+    npm install wikit -g  # A Command Line Tool to Search Wikipedia in Linux
+  	cmus # C* Music Player
+ 	mc # Midnight Commander
+ 	net-tools 
+    bat #A cat(1) clone with syntax highlighting and Git integration
+    manpages-pt manpages-pt-dev  # Man pages in portuguese
+    trash-cli # Trash-cli trashes files recording the original path, deletion date, and permissions
+)
+
+#.................. Delete posible lock files
+    sudo rm /var/lib/dpkg/lock-frontend
+    sudo rm /var/cache/apt/archives/lock 
+
+#.................. Adding support for 32-bit architecture
+    sudo dpkg --add-architecture i386
+
+#.................. Get the latest package lists
+    sudo apt update -y
+
+# ================================================================
+# Add additional repositories
+# ================================================================
+    sudo add-apt-repository ppa:openshot.developers/ppa # Openshot
+    sudo add-apt-repository ppa:stebbins/handbrake-releases # Handbrake
+    sudo add-apt-repository ppa:oguzhaninan/stacer # Stacer
+
+#..................Install from repository (If not already installed)
+for my_soft in ${INSTALL_FROM_REPO[@]}; do
+  if ! dpkg -l | grep -q $my_soft; then 
+    apt install "$my_soft" -y
+  else
+    #[DONE] - $my_soft"
+  fi
+done
+
+#.................. Get the latest package lists
+    sudo apt update -y
+
+# ================================================================
+# Miscellaneous
+# ================================================================
+
+#.................. Apps
+
+# Install Sublime
+    wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
+    sudo apt install apt-transport-https
+    deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
+    sudo apt-get update
+    sudo apt-get install sublime-text
+
+# Calibre
+    sudo -v && wget -nv -O- https://download.calibre-ebook.com/linux-installer.sh | sudo sh /dev/stdin # E-book manager
+
+# Improve Battery Performance
+    sudo apt-get install tlp tlp-rdw
+    sudo systemct1 enable tlp
+
+# Install Brave browser
+    sudo apt install apt-transport-https curl gnupg
+    curl -s https://brave-browser-apt-release.s3.brave5t5rjjg3s6k.onion/brave-core.asc | sudo apt-key --keyring /etc/apt/trusted.gpg.d/brave-browser-release.gpg add -
+    deb [arch=amd64] https://brave-browser-apt-release.s3.brave5t5rjjg3s6k.onion/ stable main" | sudo tee /etc/apt/sources.list.d/brave-browser-release.list
+    sudo apt update
+    sudo apt install brave-browser
+    sudo update-alternatives --set x-www-browser /usr/bin/brave-browser-stable # set default browser
+
+#.................. Manage Python Packages
+
+#.................. Manage Node.js Packages
+    npm i wikit -g # Command line program for getting Wikipedia summaries easily
+
+#.................. Configuring the Terminal
+
+# ZHS
+    curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh; zsh # Framework for managing Zsh configuration
+    sudo usermod --shell $(which zsh) $USER # Set ZSH as my default shell
+
+# ================================================================
+# Snap
+# =============================================================
+    sudo snap install spotify
+    sudo snap install vlc 
+    sudo snap install joplin-james-carroll # Joplin (Free note taking application)
+    sudo snap install code --classic # Visual Studio Code (Code editor)
+
+# ================================================================
+# Flatpak
+# ================================================================
+    flatpak install flathub org.telegram.desktop # Telegram
+
+# ================================================================
+# Appearance
+# ================================================================
+
+#.................. Window colors
+    gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark' # Default dark mode
+    # gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita' # Default light mode
+    gsettings set org.gnome.desktop.interface enable-hot-corners true # Enable Hot Corner in GNOME Shell
+    sudo apt remove apport apport-gtk # Remove Apport (reporting system for crashes and failures in Ubuntu
+
+# ================================================================
+# Post installation
+# ================================================================
+
+#.................. Deleting temporary folder
+    cd MY_DIR
+    rm *.deb  
+    cd
+
+#.................. Update and cleaning
+    sudo apt update && sudo apt dist-upgrade 
+    flatpak update
+    sudo apt autoclean
+    sudo apt autoremove 
+    sudo apt -f install -y
+fi
+
+exit 0
